@@ -164,21 +164,6 @@ console.log("bye comment!")
 
 Now try clicking delete on a comment. You ought to see `bye comment!` in the JS console — your template is being rendered, but it's a _JavaScript_ template that is being _executed_ by the browser.
 
-We can actually shorten that controller change to just:
-
-```ruby{6}
-# app/controllers/comments_controller.rb
-
-  # ...
-      format.html { redirect_back fallback_location: root_url, notice: "Comment was successfully destroyed." }
-      format.json { head :no_content }
-      format.js
-    end
-  # ...
-```
-
-because we chose the conventional name and extension for the file at `app/views/comments/destroy.js.erb`.
-
 #### View Source for JS responses
 
 **A very important note:** Since your templates are now JavaScript, one of your primary debugging tools — looking at HTML with **View Source** — can no longer help you. How do you see the actual JavaScript that your templates are producing and sending to the browser?
@@ -194,7 +179,7 @@ This will be _crucial_ to use as we move along. You will definitely, 💯, absol
 
 Now, let's use our jQuery skills to actually remove the comment from the DOM.
 
-##### Add a unique ID to the component
+#### Add a unique ID to the component
 
 First, let's make it easy on ourselves by putting a unique `id=""` on it. Then it will be easy to select with `$()`:
 
@@ -227,7 +212,7 @@ Which does the exact same thing — essentially, `dom_id(thing)` returns:
 "#{thing.class.to_s.underscore}_#{thing.id}"
 ```
 
-##### Remove the component from the DOM
+#### Remove the component from the DOM
 
 Now that it's easy to select, let's grab it with jQuery and remove it. If our goal is to, ultimately, execute some jQuery that looks like this:
 
@@ -271,10 +256,13 @@ Let's improve the experience of adding a comment. It will follow the same patter
 
 Add the `local: false` option to the `form_with` helper that is rendering the form to add a comment:
 
-```erb
+```erb{4:(31-44)}
 <!-- app/views/comments/_form.html.erb -->
 
-<%= form_with(model: comment, local: false) do |form| %>
+<li class="list-group-item">
+  <%= form_with(model: comment, local: false) do |form| %>
+    <% if comment.errors.any? %>
+    <!-- ... -->
 ```
 
 Submit the form and verify that the form no longer navigates, the request is still made in the background, and the format of the request is now `JS` instead of `HTML`.
@@ -283,14 +271,23 @@ Submit the form and verify that the form no longer navigates, the request is sti
 
 In the `comments#create` action, let's expand the `respond_to` block to handle requests for format `JS`:
 
-```ruby
-respond_to do |format|
-  # Handle JSON and HTML formats above as usual
+```ruby{12-14}
+# app/controllers/comments_controller.rb
 
-  format.js do
-    render template: "comments/create.js.erb"
-  end
-end
+  # ...
+  def create
+    @comment = Comment.new(comment_params)
+    @comment.author = current_user
+
+    respond_to do |format|
+      if @comment.save
+        format.html { redirect_back fallback_location: root_path, notice: "Comment was successfully created." }
+        format.json { render :show, status: :created, location: @comment }
+        format.js do
+          render template: "comments/create.js.erb"
+        end
+      else
+        # ...
 ```
 
 If you want to, you can be more concise here — since:
@@ -301,10 +298,9 @@ If you want to, you can be more concise here — since:
 
 We can just say:
 
-```ruby
+```ruby{3}
 respond_to do |format|
-  # Handle JSON and HTML formats above as usual
-
+  # Handle JSON and HTML formats as usual
   format.js
 end
 ```
@@ -337,10 +333,12 @@ First, recall that we can pass a string containing HTML directly to the `$()` me
 
 Let's try it. First, we'll need to add a way to select the `<li>` which contains the `<form>`, so that we can call `before()` on it to insert a sibling element. Let's try adding a `dom_id` to it:
 
-```erb
+```erb{3:(5-48)}
 <!--  app/views/comments/_form.html.erb -->
 
-<li id="<%= dom_id(comment) %>_form" class="list-group-item">
+<li id="<%= dom_id(comment) %>_new_comment_form" class="list-group-item">
+  <%= form_with(model: comment, local: false) do |form| %>
+    <% if comment.errors.any? %>
 ```
 
 In the `_form` partial for a new comment, `comment` is a brand new, unsaved comment. So `dom_id(comment)` doesn't have an ID number to work with. So it returns `new_comment`. Therefore, the above would produce:
@@ -361,7 +359,7 @@ This isn't quite right, because there can be _multiple_ new comment forms on the
 
 One very good option would be to add a more specific selector to the element itself:
 
-```erb
+```erb{1:(20-32)}
 <li id="<%= dom_id(comment.photo) %>_new_comment_form" class="list-group-item">
 ```
 
@@ -413,7 +411,7 @@ Now give it a try and look at the response:
 
 And, it works again — and it looks great.
 
-##### Abbreviations
+#### Abbreviations
 
 If you want to, you can use an abbreviation for the `escape_javascript()` helper — `j()`:
 
@@ -478,7 +476,7 @@ Next, let's improve the edit comment experience.
 
 For each action, you should follow the standard Ajaxification steps:
 
- - Switch the link/form from HTML to JS with `remote: true` on `link_to` or `local: false` on `form_with`.
+ - Switch the link/form from HTML to JS with `remote: true` and (`method: :delete` _if it is a DELETE request_) on `link_to`, or `local: false` on `form_with`.
  - Add `format.js` to the appropriate `respond_to` block.
  - Write a JS response template. This will usually involve:
    - Using or creating partials to represent the components being rendered via Ajax.
@@ -498,9 +496,9 @@ See if you can Ajaxify edit/update on your own.
 When you're ready to look at solutions for Ajaxifying CRUD for comments:
 
  - `comments#destroy`: [ad9b6de](https://github.com/appdev-projects/photogram-ajax/commit/ad9b6de74d6048b6f1c4b7dde6d3b5fd0f967194)
- - `comments#create`: [ed934201](https://github.com/appdev-projects/pg-ajax-1/commit/ed934201f19880b553bf0c3e6bac897bab20dcf5)
- - `comments#edit`: [9df506d](https://github.com/appdev-projects/pg-ajax-1/commit/9df506d30f001317992ee711a0e56e7278112b53)
- - `comments#update`: [76dece8](https://github.com/appdev-projects/pg-ajax-1/commit/76dece874f00a94af7901bf4e28772a4052f70d1)
+ - `comments#create`: [b6cf072](https://github.com/appdev-projects/photogram-ajax/commit/b6cf072aa42a8a5e043218c4e02a92c65e6446dc)
+ - `comments#edit`: [8aab3e6](https://github.com/appdev-projects/photogram-ajax/commit/8aab3e621e7a47030ce2dec916866ff8b141d16a)
+ - `comments#update`: [c18294a](https://github.com/appdev-projects/photogram-ajax/commit/c18294a800e01a240bd2339a9c708d1cb64cf4dc)
 
 ### Other challenges
 
@@ -528,11 +526,11 @@ The JSON API that we develop will have to be much more robust than the taste we 
 format.json { render json: @movies }
 ```
 
-Typically the back-end and front-end will now be developed by their own specialists, since each will now require  more work and will require markedly different languages/paradigms.
+Typically the back-end and front-end will now be developed by their own specialists, since each will now require more work and will require markedly different languages/paradigms.
 
 We _could_ build one of these web-clients using `$().ajax` to fetch JSON from our API and `$()` to create and insert elements into the DOM, but it's usually better to use a framework like React, Vue, or Angular.
 
-All in all, going the SPA-route dramatically increases cost and reduces development velocity versus using the Rails Ajax approach outlined above. But,in some cases, we have no choice. _Only_ go down the SPA road when a simpler approach won't work! Far too many teams choose an SPA framework when their app isn't a single-page at all; if it's a classic, document-based, RESTful CRUD application, you can build for 1/2 the cost if you treat as such. And, as you learned above, you can still make it snappy and interactive using sprinkles of unobtrusive Ajax.
+All in all, going the SPA ([Single Page Application](https://en.wikipedia.org/wiki/Single-page_application)) route dramatically increases cost and reduces development velocity versus using the Rails Ajax approach outlined above. But, in some cases, we have no choice. _Only_ go down the SPA road when a simpler approach won't work! Far too many teams choose an SPA framework when their app isn't a single-page at all; if it's a classic, document-based, RESTful CRUD application, you can build for 1/2 the cost if you treat as such. And, as you learned above, you can still make it snappy and interactive using sprinkles of unobtrusive Ajax.
 
 <aside markdown="1">
 But if and when we do decide to go down this road, the nice part is that the same robust JSON API that we develop can feed native iOS and Android clients.
