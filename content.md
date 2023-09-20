@@ -10,7 +10,7 @@ These notes are a companion to the `photogram-ajax` project. Since there are no 
 
 Our target can be found here:
 
-[photogram-ajax.matchthetarget.com](https://photogram-ajax.matchthetarget.com/)
+[pg-ajax-1.matchthetarget.com](https://pg-ajax-1.matchthetarget.com/)
 
 <div class="bg-red-100 py-1 px-5" markdown="1">
 
