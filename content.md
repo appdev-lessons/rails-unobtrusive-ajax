@@ -17,6 +17,29 @@ Our target can be found here:
 There is not walkthrough video for this project. It's time to start getting very comfortable reading manuals. Follow along with the reading carefully and try to implement every step on your own.
 </div>
 
+## An important note about UJS in Rails 7
+
+In Rails version 7, support for Unobtrusive JavaScript (UJS) is not the default. Rather, [this has been replaced with Turbo](https://guides.rubyonrails.org/working_with_javascript_in_rails.html#replacements-for-rails-ujs-functionality). This is the reason that we have been using e.g. `data: { turbo_method: :delete }` on our destroy links!
+
+For this project, we do want to re-implement UJS so that we can make our app snappy. However, in your own projects you may want to make the switch to Turbo everywhere. [Here's a very nice GoRails video with some more information about Turbo](https://gorails.com/episodes/turbo-data-confirm-method-and-disable).
+
+Okay, here's what we did to re-implement Turbo in this project (you don't need to follow these steps, we set this up for you already!):
+
+At the bash prompt I ran:
+
+```
+% ./bin/importmap pin @rails/ujs
+```
+
+Then in `app/javascripts/application.js`, I added these lines to the bottom:
+
+```js
+import Rails from "@rails/ujs"
+Rails.start();
+```
+
+Now anywhere in you app that was using a Turbo-type request, we will need to change. You'll see that below, so read on!
+
 ## Comments
 
 Let's focus first on the experience of CRUDing comments. Right now if you add, update, or destroy a comment, the `comments#create`, `comments#update`, and `comments#destroy` actions use the `redirect_back` method to send you back to the page you were previously on; which is pretty cool, actually. Much better than `redirect_to root_url` no matter where you were before.
