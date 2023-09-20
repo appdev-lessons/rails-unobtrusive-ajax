@@ -53,14 +53,17 @@ Ok, phew. How are we going to do all this? Well, fortunately the `link_to` and `
 With these pieces, we _could_ write the code ourselves; it would look something like the following:
 
 ```erb
+<!-- app/views/comments/_comment.html.erb -->
+
+<!-- ... -->
 <%= link_to "#", # comment,                      # removed the href since we're breaking the link anyway
-      # method: :delete,                         # removed the method since we're breaking the link anyway
+      # data: { turbo_method: :delete },         # removed the method since we're breaking the link anyway
       class: "btn btn-link btn-sm text-muted",
       id: "#comment_{comment.id}_delete_link" do # added an id to the link so that I can bind a click handler to it %>
   
   <i class="fas fa-trash fa-fw"></i>
 <% end %>
-
+<!-- ... -->
 <script>
   // bind the click handler
   $("#comment_<%= comment.id %>_delete_link").on("click", function() { 
@@ -78,9 +81,9 @@ With these pieces, we _could_ write the code ourselves; it would look something 
 
 Fortunately, we don't have to write the above code for every link we want to _Ajaxify_. Instead, we can add a _very_ handy option on the `link_to` helper method, which does the equivalent for us — `remote: true`:
 
-```erb
+```erb{4}
 <%= link_to comment,
-      method: :delete,
+      data: { turbo_method: :delete },
       class: "btn btn-link btn-sm text-muted",
       remote: true do %>
 
