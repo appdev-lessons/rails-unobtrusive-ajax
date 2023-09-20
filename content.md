@@ -323,7 +323,7 @@ And make sure you wired everything up correctly. Once you've verified that `howd
 console.log("<%= @comment.body %>")
 ```
 
-Once you've proven that you're sending the data back, think about what interaction you'd like to use to actually update the client. [Review my list of frequently used jQuery methods](https://chapters.firstdraft.com/chapters/892#frequently-used-jquery-methods) and see if any might come in handy.
+Once you've proven that you're sending the data back, think about what interaction you'd like to use to actually update the client. [Review my list of frequently used jQuery methods](https://learn.firstdraft.com/lessons/203-minimal-js#frequently-used-jquery-methods) and see if any might come in handy.
 
 At this point, it's really up to you to use your JavaScript skills to craft a JavaScript response that fits your application's context. But, let me show you a pattern that has served me well in many cases.
 
