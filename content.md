@@ -104,9 +104,9 @@ With these pieces, we _could_ write the code ourselves; it would look something 
 
 Fortunately, we don't have to write the above code for every link we want to _Ajaxify_. Instead, we can add a _very_ handy option on the `link_to` helper method, which does the equivalent for us — `remote: true`:
 
-```erb{4}
+```erb{2,4}
 <%= link_to comment,
-      data: { turbo_method: :delete },
+      method: :delete,
       class: "btn btn-link btn-sm text-muted",
       remote: true do %>
 
@@ -114,11 +114,20 @@ Fortunately, we don't have to write the above code for every link we want to _Aj
 <% end %>
 ```
 
-Add the `remote: true` option, clear your server log, click the link, and observe the server log. You'll notice that 1) the link didn't seem to do anything when clicked, but 2) the request did in fact hit the correct route, 3) the request format was `as JS` rather than `as HTML` like usual, and 4) if you refresh the page, the comment was in fact deleted (since the action was triggered).
+<div class="bg-red-100 py-1 px-5" markdown="1">
+
+Because we turned UJS on in this Rails 7 app, we also changed the `data: { turbo_method: :delete }` to just `method: :delete` to prevent a Turbo request submission. Try checking your server log with these two different options. With `data: { turbo_method: :delete }`, you would see something like:
+
+```
+Processing by CommentsController#destroy as TURBO_STREAM
+```
+</div>
+
+Add the `remote: true` option (and change to `method: :delete`), clear your server log, click the link, and observe the server log. You'll notice that 1) the link didn't seem to do anything when clicked, but 2) the request did in fact hit the correct route, 3) the request format was `as JS` rather than `as TURBO_STREAM` or `as HTML` like usual, and 4) if you refresh the page, the comment was in fact deleted (since the action was triggered).
 
 Great! Now all we have to do is update the HTML with jQuery to keep the client in sync with the database.
 
-#### respond_to JS
+#### `respond_to` JS
 
 In the `comments#destroy` action, let's expand the `respond_to` block to handle requests for format `JS`:
 
