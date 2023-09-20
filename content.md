@@ -12,10 +12,7 @@ Our target can be found here:
 
 [pg-ajax-1.matchthetarget.com](https://pg-ajax-1.matchthetarget.com/)
 
-<div class="bg-red-100 py-1 px-5" markdown="1">
-
-There is not walkthrough video for this project. It's time to start getting very comfortable reading manuals. Follow along with the reading carefully and try to implement every step on your own.
-</div>
+There is no walkthrough video for this project. It's time to start getting very comfortable reading manuals. Follow along with the reading carefully and try to implement every step on your own.
 
 ## An important note about UJS and jQuery in Rails 7
 
