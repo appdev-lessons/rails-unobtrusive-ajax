@@ -18,7 +18,7 @@ There is no walkthrough video for this project. It's time to start getting very 
 
 In Rails version 7, support for Unobtrusive JavaScript (UJS) is not the default. Rather, [this has been replaced with Turbo](https://guides.rubyonrails.org/working_with_javascript_in_rails.html#replacements-for-rails-ujs-functionality). This is the reason that we have been using e.g. `data: { turbo_method: :delete }` on our destroy links!
 
-For this project, we do want to re-implement UJS so that we can make our app snappy. However, in your own projects you may want to make the switch to Turbo everywhere. [Here's a very nice GoRails video with some more information about Turbo](https://gorails.com/episodes/turbo-data-confirm-method-and-disable).
+For this project, we do want to re-implement UJS so that we can make our app snappy. However, in your own projects you may want to make the switch to Turbo everywhere. [The official Rails guide on this is a good place to begin if you do so.](https://guides.rubyonrails.org/working_with_javascript_in_rails.html)
 
 Here's what we did to re-implement UJS and jQuery in this project (you don't need to follow these steps, we set this up for you already!):
 
