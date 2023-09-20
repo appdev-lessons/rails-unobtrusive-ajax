@@ -2,11 +2,20 @@
 
 ## Objective
 
-Now that we've learned [a minimal amount of JavaScript](https://chapters.firstdraft.com/chapters/892){:target="_blank"}, let's apply our skills to our Rails applications to make them _slick_.
+Now that we've learned [a minimal amount of JavaScript](https://learn.firstdraft.com/lessons/203-minimal-js), let's apply our skills to our Rails applications to make them _slick_.
 
-These notes are a companion to the [pg-ajax-1 project](https://github.com/appdev-projects/pg-ajax-1){:target="_blank"}.
+These notes are a companion to the `photogram-ajax` project. Since there are no automated tests for it, simply fork to begin:
 
-[This is our target.](https://pg-ajax-1.matchthetarget.com/){:target="_blank"}
+[github.com/appdev-projects/photogram-ajax](https://github.com/appdev-projects/photogram-ajax)
+
+Our target can be found here:
+
+[photogram-ajax.matchthetarget.com](https://photogram-ajax.matchthetarget.com/)
+
+<div class="bg-red-100 py-1 px-5" markdown="1">
+
+There is not walkthrough video for this project. It's time to start getting very comfortable reading manuals. Follow along with the reading carefully and try to implement every step on your own.
+</div>
 
 ## Comments
 
@@ -38,8 +47,8 @@ Finally, the request that is placed must be of the format `.js`, rather than `.h
 
 Ok, phew. How are we going to do all this? Well, fortunately the `link_to` and `form_with` methods are going to do it all for us; but just as a thought experiment, here's what we'd need in order to do it ourselves:
 
- - The [jQuery ajax() method](https://api.jquery.com/jquery.ajax/){:target="_blank"}. It is the equivalent of when we used [`HTTP.get()` or `HTTP.post()`](https://github.com/httprb/http#basic-usage){:target="_blank"} to interact with APIs in Ruby; you provide it with a URL and it places a request to that URL.
- - We can `return false` from `on("click")`'s callback, or use [the preventDefault method](https://api.jquery.com/event.preventdefault/){:target="_blank"}, to prevent the user from going anywhere when they click the link.
+ - The [jQuery ajax() method](https://api.jquery.com/jquery.ajax/). It is the equivalent of when we used [`HTTP.get()` or `HTTP.post()`](https://github.com/httprb/http#basic-usage) to interact with APIs in Ruby; you provide it with a URL and it places a request to that URL.
+ - We can `return false` from `on("click")`'s callback, or use [the preventDefault method](https://api.jquery.com/event.preventdefault/), to prevent the user from going anywhere when they click the link.
 
 With these pieces, we _could_ write the code ourselves; it would look something like the following:
 
@@ -114,6 +123,7 @@ Now try clicking delete on a comment. You ought to see `bye comment!` in the JS 
 Chrome has your back. Go to the Network tab in the Dev Tools:
 
 ![](/assets/js-view-source.png)
+{: .bleed-full }
 
 This will be _crucial_ to use as we move along. You will definitely, 💯, absolutely make typos in the jQuery selectors that you try to compose using ERB tags in these templates, and it's essential that you use the Network tab to debug.
 
@@ -251,7 +261,7 @@ And make sure you wired everything up correctly. Once you've verified that `howd
 console.log("<%= @comment.body %>")
 ```
 
-Once you've proven that you're sending the data back, think about what interaction you'd like to use to actually update the client. [Review my list of frequently used jQuery methods](https://chapters.firstdraft.com/chapters/892#frequently-used-jquery-methods){:target="_blank"} and see if any might come in handy.
+Once you've proven that you're sending the data back, think about what interaction you'd like to use to actually update the client. [Review my list of frequently used jQuery methods](https://chapters.firstdraft.com/chapters/892#frequently-used-jquery-methods) and see if any might come in handy.
 
 At this point, it's really up to you to use your JavaScript skills to craft a JavaScript response that fits your application's context. But, let me show you a pattern that has served me well in many cases.
 
@@ -303,7 +313,7 @@ var added_comment = $("<p><%= @comment.body %></p>");
 $("#<%= dom_id(@comment.photo) %>_new_comment_form").before(added_comment);
 ```
 
-Another good option would be to [learn to write more specific CSS selectors using the existing structure of the page](https://flukeout.github.io/){:target="_blank"}; it might come in handy if you go deep into Ajax, as it did when web scraping.
+Another good option would be to [learn to write more specific CSS selectors using the existing structure of the page](https://flukeout.github.io/); it might come in handy if you go deep into Ajax, as it did when web scraping.
 
 Either way — we now have the comment being added to the correct spot in the DOM! 🎉
 
@@ -318,6 +328,7 @@ var added_comment = $("<%= render 'comments/comment', comment: @comment %>");
 If you try this and look at the response, you'll see our partial being rendered beautifully:
 
 ![](/assets/render-without-escape-js.png)
+{: .bleed-full }
 
 Unfortunately, you'll also see that it no longer works; if you try adding a comment, the DOM no longer updates, and you'll see errors in the JS console.
 
@@ -332,6 +343,7 @@ var added_comment = $("<%= escape_javascript(render 'comments/comment', comment:
 Now give it a try and look at the response:
 
 ![](/assets/render-with-escape-js.png)
+{: .bleed-full }
 
 And, it works again — and it looks great.
 
@@ -419,10 +431,10 @@ See if you can Ajaxify edit/update on your own.
 
 When you're ready to look at solutions for Ajaxifying CRUD for comments:
 
- - `comments#destroy`: [fdf0a58](https://github.com/appdev-projects/pg-ajax-1/commit/fdf0a5807e9872edc49c88442d57df3611768039){:target="_blank"}
- - `comments#create`: [ed934201](https://github.com/appdev-projects/pg-ajax-1/commit/ed934201f19880b553bf0c3e6bac897bab20dcf5){:target="_blank"}
- - `comments#edit`: [9df506d](https://github.com/appdev-projects/pg-ajax-1/commit/9df506d30f001317992ee711a0e56e7278112b53){:target="_blank"}
- - `comments#update`: [76dece8](https://github.com/appdev-projects/pg-ajax-1/commit/76dece874f00a94af7901bf4e28772a4052f70d1){:target="_blank"}
+ - `comments#destroy`: [fdf0a58](https://github.com/appdev-projects/pg-ajax-1/commit/fdf0a5807e9872edc49c88442d57df3611768039)
+ - `comments#create`: [ed934201](https://github.com/appdev-projects/pg-ajax-1/commit/ed934201f19880b553bf0c3e6bac897bab20dcf5)
+ - `comments#edit`: [9df506d](https://github.com/appdev-projects/pg-ajax-1/commit/9df506d30f001317992ee711a0e56e7278112b53)
+ - `comments#update`: [76dece8](https://github.com/appdev-projects/pg-ajax-1/commit/76dece874f00a94af7901bf4e28772a4052f70d1)
 
 ### Other challenges
 
@@ -454,6 +466,8 @@ Typically the back-end and front-end will now be developed by their own speciali
 
 We _could_ build one of these web-clients using `$().ajax` to fetch JSON from our API and `$()` to create and insert elements into the DOM, but it's usually better to use a framework like React, Vue, or Angular.
 
-All in all, going the SPA-route dramatically increases cost and reduces development velocity versus using the Rails Ajax approach outlined above.[^native_clients] But,in some cases, we have no choice. _Only_ go down the SPA road when a simpler approach won't work! Far too many teams choose an SPA framework when their app isn't a single-page at all; if it's a classic, document-based, RESTful CRUD application, you can build for 1/2 the cost if you treat as such. And, as you learned above, you can still make it snappy and interactive using sprinkles of unobtrusive Ajax.
+All in all, going the SPA-route dramatically increases cost and reduces development velocity versus using the Rails Ajax approach outlined above. But,in some cases, we have no choice. _Only_ go down the SPA road when a simpler approach won't work! Far too many teams choose an SPA framework when their app isn't a single-page at all; if it's a classic, document-based, RESTful CRUD application, you can build for 1/2 the cost if you treat as such. And, as you learned above, you can still make it snappy and interactive using sprinkles of unobtrusive Ajax.
 
-[^native_clients]: But if and when we do decide to go down this road, the nice part is that the same robust JSON API that we develop can feed native iOS and Android clients.
+<aside markdown="1">
+But if and when we do decide to go down this road, the nice part is that the same robust JSON API that we develop can feed native iOS and Android clients.
+</aside>
