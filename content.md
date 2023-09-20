@@ -17,23 +17,31 @@ Our target can be found here:
 There is not walkthrough video for this project. It's time to start getting very comfortable reading manuals. Follow along with the reading carefully and try to implement every step on your own.
 </div>
 
-## An important note about UJS in Rails 7
+## An important note about UJS and jQuery in Rails 7
 
 In Rails version 7, support for Unobtrusive JavaScript (UJS) is not the default. Rather, [this has been replaced with Turbo](https://guides.rubyonrails.org/working_with_javascript_in_rails.html#replacements-for-rails-ujs-functionality). This is the reason that we have been using e.g. `data: { turbo_method: :delete }` on our destroy links!
 
 For this project, we do want to re-implement UJS so that we can make our app snappy. However, in your own projects you may want to make the switch to Turbo everywhere. [Here's a very nice GoRails video with some more information about Turbo](https://gorails.com/episodes/turbo-data-confirm-method-and-disable).
 
-Okay, here's what we did to re-implement Turbo in this project (you don't need to follow these steps, we set this up for you already!):
+Here's what we did to re-implement UJS and jQuery in this project (you don't need to follow these steps, we set this up for you already!):
 
-At the bash prompt I ran:
+At the bash prompt I ran these two commands to modify `config/importmap.rb`:
 
 ```
 % ./bin/importmap pin @rails/ujs
+% ./bin/importmap pin jquery
 ```
 
-Then in `app/javascripts/application.js`, I added these lines to the bottom:
+Then in `app/javascripts/application.js`, I added these lines:
 
-```js
+```js{5-9}
+// Configure your import map in config/importmap.rb. Read more: https://github.com/rails/importmap-rails
+import "@hotwired/turbo-rails"
+import "controllers"
+
+import jquery from "jquery";
+window.jQuery = jquery;
+window.$ = jquery;
 import Rails from "@rails/ujs"
 Rails.start();
 ```
@@ -131,17 +139,25 @@ Great! Now all we have to do is update the HTML with jQuery to keep the client i
 
 In the `comments#destroy` action, let's expand the `respond_to` block to handle requests for format `JS`:
 
-```ruby
-respond_to do |format|
-  # Handle JSON and HTML formats above as usual
+```ruby{10-12}
+# app/controllers/comments_controller.rb
 
-  format.js do
-    render template: "comments/destroy.js.erb"
+  # ...
+  def destroy
+    @comment.destroy
+    respond_to do |format|
+      format.html { redirect_back fallback_location: root_url, notice: "Comment was successfully destroyed." }
+      format.json { head :no_content }
+      
+      format.js do
+        render template: "comments/destroy"
+      end
+    end
   end
-end
+  # ...
 ```
 
-Now, as usual, let's go create this template file in `app/views/comments`:
+Now, as usual, let's go create this template file in `app/views/comments/destroy.js.erb` (be sure you get the file extension right: `.js.erb`):
 
 ```js
 // app/views/comments/destroy.js.erb
@@ -150,6 +166,21 @@ console.log("bye comment!")
 ```
 
 Now try clicking delete on a comment. You ought to see `bye comment!` in the JS console — your template is being rendered, but it's a _JavaScript_ template that is being _executed_ by the browser.
+
+We can actually shorten that controller change to just:
+
+```ruby{6}
+# app/controllers/comments_controller.rb
+
+  # ...
+      format.html { redirect_back fallback_location: root_url, notice: "Comment was successfully destroyed." }
+      format.json { head :no_content }
+      format.js
+    end
+  # ...
+```
+
+because we chose the conventional name and extension for the file at `app/views/comments/destroy.js.erb`.
 
 #### View Source for JS responses
 
@@ -170,10 +201,13 @@ Now, let's use our jQuery skills to actually remove the comment from the DOM.
 
 First, let's make it easy on ourselves by putting a unique `id=""` on it. Then it will be easy to select with `$()`:
 
-```erb
+```erb{3:(5-34)}
 <!-- app/views/comments/_comment.html.erb -->
 
 <li id="comment_<%= comment.id %>" class="list-group-item">
+  <div class="d-flex">
+    <div class="flex-shrink-0">
+    <!-- ... -->
 ```
 
 Which would produce something like:
@@ -466,7 +500,7 @@ See if you can Ajaxify edit/update on your own.
 
 When you're ready to look at solutions for Ajaxifying CRUD for comments:
 
- - `comments#destroy`: [fdf0a58](https://github.com/appdev-projects/pg-ajax-1/commit/fdf0a5807e9872edc49c88442d57df3611768039)
+ - `comments#destroy`: [ad9b6de](https://github.com/appdev-projects/photogram-ajax/commit/ad9b6de74d6048b6f1c4b7dde6d3b5fd0f967194)
  - `comments#create`: [ed934201](https://github.com/appdev-projects/pg-ajax-1/commit/ed934201f19880b553bf0c3e6bac897bab20dcf5)
  - `comments#edit`: [9df506d](https://github.com/appdev-projects/pg-ajax-1/commit/9df506d30f001317992ee711a0e56e7278112b53)
  - `comments#update`: [76dece8](https://github.com/appdev-projects/pg-ajax-1/commit/76dece874f00a94af7901bf4e28772a4052f70d1)
